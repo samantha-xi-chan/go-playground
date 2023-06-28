@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-playground/play010_gin"
+	"go-playground/play009_file_stdout"
 )
 
 func main() {
@@ -21,8 +21,11 @@ func main() {
 	//
 	//play007_cron.TestCron()
 	//play008_file.Play()
-	//play009_file_stdout.PlayA()
-	//play009_file_stdout.PlayB()
+	play009_file_stdout.PlayA()
+	play009_file_stdout.PlayB()
+	play009_file_stdout.PlayC()
 
-	play010_gin.Play()
+	//play010_gin.Play()
+
+	//play011_exec.Play()
 }
