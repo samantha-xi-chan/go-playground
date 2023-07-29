@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSE Example</title>
+</head>
+<body>
+<div id="output"></div>
+
+<script>
+    var output = document.getElementById("output");
+
+    // Function to create an EventSource object and handle incoming SSE events
+    function setupEventSource(x) {
+        var source = new EventSource("/events?x=" + x);
+
+        // Handle incoming SSE events
+        source.onmessage = function(event) {
+            output.innerHTML += event.data + "<br>";
+        };
+
+        // Handle SSE errors
+        source.onerror = function(event) {
+            console.error("Error occurred:", event);
+            source.close(); // Close the connection in case of an error
+        };
+
+        // Handle SSE connection closure
+        source.onclose = function() {
+            console.log("Connection closed.");
+        };
+    }
+
+    // Function to start SSE when the form is submitted
+    function startSSE() {
+        var xInput = document.getElementById("xInput");
+        var x = parseInt(xInput.value.trim());
+
+        if (!isNaN(x)) {
+            // setupEventSource(x);
+            console.log("input is "  + x );
+            alert( "input is "  + x );
+        } else {
+            alert("Invalid input. Please provide a valid numeric value for x.");
+        }
+    }
+</script>
+
+<!-- Form to input x and start SSE -->
+<form>
+    <label for="xInput">Enter x:</label>
+    <input type="number" id="xInput" required>
+    <button type="button" onclick="startSSE()">Start SSE</button>
+</form>
+</body>
+</html>

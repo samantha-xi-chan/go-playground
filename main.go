@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"go-playground/play101_docker"
+	"go-playground/play201_kafka"
 )
 
 //
@@ -57,6 +57,7 @@ func main() {
 	//play009_file_stdout.PlayB()
 	//play009_file_stdout.PlayBB()
 	//play009_file_stdout.PlayC()
+
 	//play009_file_stdout.PlayD()
 	//play009_file_stdout.PlayE()
 
@@ -82,5 +83,12 @@ func main() {
 	//play012_gopark.Play()
 
 	//play901_pprof.Play()
-	play101_docker.Play()
+	//play101_docker.Play()
+	//play110_sse.Play()
+
+	play201_kafka.Consume()
+	//time.Sleep(time.Second)
+
+	//play201_kafka.Produce()
+
 }
