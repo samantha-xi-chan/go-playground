@@ -12,7 +12,7 @@ import (
 )
 
 func PullImageBlo(ctx context.Context, imageName string) (err error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return errors.Wrap(err, "client.NewClientWithOpts: ")
 	}
@@ -43,7 +43,7 @@ func imageExists(cli *client.Client, imageName string) bool {
 }
 
 func RemoveImage(ctx context.Context, imageName string) (err error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 
 	}

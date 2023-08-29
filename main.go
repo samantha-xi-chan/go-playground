@@ -2,7 +2,12 @@ package main
 
 import (
 	"fmt"
-	"go-playground/play201_kafka"
+	"go-playground/play015_rabbitmq_v2"
+	"go-playground/play101_docker"
+	"go-playground/play131_filedownload"
+	"go-playground/play210_timeout"
+	"go-playground/play901_pprof"
+	"log"
 )
 
 //
@@ -34,6 +39,21 @@ func PrintResult(result int) {
 const SIZE = 1024
 
 func main() {
+	play015_rabbitmq_v2.Play()
+	select {}
+	return
+
+	//e := play023_zip.RecursiveZip("/Users/user/Desktop/tmpp/", "/Users/user/Desktop/tmpp.zip")
+	//if e != nil {
+	//	logrus.Debug(e)
+	//}
+	//
+	//e = play023_zip.RecursiveUnzip("/Users/user/Desktop/tmpp.zip", "/Users/user/Desktop/tmpp2s/")
+	//if e != nil {
+	//	logrus.Debug(e)
+	//}
+	//return
+
 	//s := level2("a", " ", "c")
 	//log.Println(s)
 
@@ -83,12 +103,33 @@ func main() {
 	//play012_gopark.Play()
 
 	//play901_pprof.Play()
-	//play101_docker.Play()
+	//play101_docker.Play2()
 	//play110_sse.Play()
 
-	play201_kafka.Consume()
+	//play201_kafka.Consume()
 	//time.Sleep(time.Second)
 
 	//play201_kafka.Produce()
 
+	//play120_viper.Play()
+
+	//go play013_redis.Sub()
+	//play013_redis.Play()
+
+	play210_timeout.Play()
+
+	go play901_pprof.InitPProf()
+	go play131_filedownload.Play()
+
+	play101_docker.Play2()
+
+	//play014_rabbitmq.Play()
+
+	// test code start
+	//play020_elk.Play()
+	//play022_logstash.Play()
+	// test code end
+
+	log.Println("select{}")
+	select {}
 }

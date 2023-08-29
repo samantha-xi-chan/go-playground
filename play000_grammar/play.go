@@ -15,7 +15,7 @@ func test(m Aliasint) { fmt.Println(m) }
 func Play() {
 	m := AA
 	test(m)
-	x := 1
+	//x := 1
 	//test(x)
 	// cannot use x (type int) as type Aliasint in argument to test
 }
