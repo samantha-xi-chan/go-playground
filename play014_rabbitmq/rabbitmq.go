@@ -45,28 +45,6 @@ func (r *RabbitMQManager) initialize(rabbitMQURL string, size int) error {
 	return nil
 }
 
-/*
-func (r *RabbitMQManager) reconnect(url string, size int) {
-	r.isConnected = false
-	for !r.isConnected {
-		if err := r.initialize(url, size); err == nil {
-			log.Printf("Failed to reconnect to RabbitMQ: %v", err)
-			return
-		}
-
-		r.reconnectTries++
-
-		reconnectInterval := time.Duration(1<<uint(r.reconnectTries)) * time.Second
-		if reconnectInterval > 60*time.Second {
-			reconnectInterval = 60 * time.Second
-		}
-
-		log.Printf("Retrying in %v...", reconnectInterval)
-		time.Sleep(reconnectInterval)
-	}
-}
-*/
-
 func (r *RabbitMQManager) release() {
 	log.Println("release...")
 	r.conn.Close()

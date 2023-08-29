@@ -8,6 +8,7 @@ import (
 	"go-playground/play210_timeout"
 	"go-playground/play901_pprof"
 	"log"
+	"time"
 )
 
 //
@@ -39,10 +40,12 @@ func PrintResult(result int) {
 const SIZE = 1024
 
 func main() {
-	play015_rabbitmq_v2.Play()
-	select {}
-	return
+	go play015_rabbitmq_v2.PlayAsProducerBlock()
+	time.Sleep(time.Second * 2)
 
+	go play015_rabbitmq_v2.PlayAsConsumerBlock(30)
+
+	select {}
 	//e := play023_zip.RecursiveZip("/Users/user/Desktop/tmpp/", "/Users/user/Desktop/tmpp.zip")
 	//if e != nil {
 	//	logrus.Debug(e)
