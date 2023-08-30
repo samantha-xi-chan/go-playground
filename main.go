@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"go-playground/play015_rabbitmq_v2"
 	"go-playground/play101_docker"
 	"go-playground/play131_filedownload"
 	"go-playground/play210_timeout"
+	"go-playground/play240_etcdv2"
 	"go-playground/play901_pprof"
 	"log"
-	"time"
 )
 
 //
@@ -40,11 +39,15 @@ func PrintResult(result int) {
 const SIZE = 1024
 
 func main() {
-	go play015_rabbitmq_v2.PlayAsProducerBlock()
-	time.Sleep(time.Second * 2)
+	//play220_fsm.Play()
+	play240_etcdv2.Play02()
 
-	go play015_rabbitmq_v2.PlayAsConsumerBlock(30)
+	//go play015_rabbitmq_v2.PlayAsProducerBlock()
+	//time.Sleep(time.Second * 2)
+	//
+	//go play015_rabbitmq_v2.PlayAsConsumerBlock(300)
 
+	log.Println("waiting select")
 	select {}
 	//e := play023_zip.RecursiveZip("/Users/user/Desktop/tmpp/", "/Users/user/Desktop/tmpp.zip")
 	//if e != nil {

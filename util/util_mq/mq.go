@@ -119,6 +119,43 @@ func (r *RabbitMQManager) Initialize(rabbitMQURL string, size int, isCons bool) 
 	r.reconnectTries = 0
 
 	log.Println("RabbitMQ connection initialized")
+
+	ch := make(chan *amqp.Error)
+
+	go func() {
+		const timeout = 5 * time.Second
+		timer := time.NewTimer(timeout)
+		for {
+			select {
+			case d, ok := <-ch:
+				if ok {
+					log.Println("d: ", d)
+					time.Sleep(time.Second * 3)
+					if err := r.Initialize(r.url, r.size, isCons); err != nil {
+						log.Fatalf("Failed to initialize RabbitMQ: %v", err)
+					}
+					log.Println("init ok")
+				}
+			case <-timer.C:
+				//log.Println("timer.C: ", timer.C)
+				timer.Reset(timeout)
+			}
+		}
+
+		log.Println("select end")
+	}()
+
+	go func() {
+		for {
+			reason, ok := <-r.conn.NotifyClose(make(chan *amqp.Error))
+			if ok {
+				ch <- reason
+			}
+		}
+
+		log.Println("NotifyClose end")
+	}()
+
 	return nil
 }
 

@@ -2,7 +2,6 @@ package play015_rabbitmq_v2
 
 import (
 	"fmt"
-	"github.com/streadway/amqp"
 	"go-playground/util/util_mq"
 	"log"
 	"time"
@@ -17,6 +16,7 @@ const (
 func PlayAsProducerBlock() {
 	SIZE_PRODUCER := 1
 
+	// 定义操作对象
 	mq := util_mq.RabbitMQManager{}
 	defer mq.Release()
 
@@ -24,43 +24,9 @@ func PlayAsProducerBlock() {
 		log.Fatalf("Failed to initialize RabbitMQ: %v", err)
 	}
 	log.Println("PlayAsProducerBlock init ok")
-	ch := make(chan *amqp.Error)
-
-	go func() {
-		const timeout = 5 * time.Second
-		timer := time.NewTimer(timeout)
-		for {
-			select {
-			case d, ok := <-ch:
-				if ok {
-					log.Println("d: ", d)
-					time.Sleep(time.Second * 3)
-					if err := mq.Initialize(RABBIT_URL, SIZE_PRODUCER, false); err != nil {
-						log.Fatalf("Failed to initialize RabbitMQ: %v", err)
-					}
-					log.Println("init ok")
-				}
-			case <-timer.C:
-				//log.Println("timer.C: ", timer.C)
-				timer.Reset(timeout)
-			}
-		}
-
-		log.Println("select end")
-	}()
-
-	go func() {
-		for {
-			reason, ok := <-mq.GetConn().NotifyClose(make(chan *amqp.Error))
-			if ok {
-				ch <- reason
-			}
-		}
-
-		log.Println("NotifyClose end")
-	}()
-
 	time.Sleep(time.Second * 2)
+
+	// 发送消息
 	mq.DeclarePublishQueue(QUEUE_NAME, PRIORITY_MAX)
 	for i := 0; ; i++ {
 		time.Sleep(time.Millisecond * 1)
@@ -69,11 +35,14 @@ func PlayAsProducerBlock() {
 		mq.Publish(QUEUE_NAME, []byte(s), uint8(4))
 	}
 
+	// 阻塞等待
 	log.Println("waiting select")
 	select {}
 }
 
 func PlayAsConsumerBlock(consumerCnt int) {
+
+	// 定义操作对象
 	mq := util_mq.RabbitMQManager{}
 	defer mq.Release()
 
@@ -81,42 +50,8 @@ func PlayAsConsumerBlock(consumerCnt int) {
 		log.Fatalf("Failed to initialize RabbitMQ: %v", err)
 	}
 	log.Println("PlayAsConsumerBlock init ok")
-	ch := make(chan *amqp.Error)
 
-	go func() {
-		const timeout = 5 * time.Second
-		timer := time.NewTimer(timeout)
-		for {
-			select {
-			case d, ok := <-ch:
-				if ok {
-					log.Println("d: ", d)
-					time.Sleep(time.Second * 3)
-					if err := mq.Initialize(RABBIT_URL, consumerCnt, true); err != nil {
-						log.Fatalf("Failed to initialize RabbitMQ: %v", err)
-					}
-					log.Println("init ok")
-				}
-			case <-timer.C:
-				//log.Println("timer.C: ", timer.C)
-				timer.Reset(timeout)
-			}
-		}
-
-		log.Println("select end")
-	}()
-
-	go func() {
-		for {
-			reason, ok := <-mq.GetConn().NotifyClose(make(chan *amqp.Error))
-			if ok {
-				ch <- reason
-			}
-		}
-
-		log.Println("NotifyClose end")
-	}()
-
+	// 监听消息
 	for i := 0; i < mq.GetSize(); i++ {
 		log.Println("Consume ...")
 		go mq.Consume(
@@ -128,7 +63,7 @@ func PlayAsConsumerBlock(consumerCnt int) {
 			})
 	}
 
-	// 等待程序退出
+	// 阻塞等待
 	log.Println("waiting select")
 	select {}
 }
