@@ -5,7 +5,7 @@ import (
 	"go-playground/play101_docker"
 	"go-playground/play131_filedownload"
 	"go-playground/play210_timeout"
-	"go-playground/play240_etcdv2"
+	"go-playground/play260_array"
 	"go-playground/play901_pprof"
 	"log"
 )
@@ -40,7 +40,10 @@ const SIZE = 1024
 
 func main() {
 	//play220_fsm.Play()
-	play240_etcdv2.Play02()
+	//play240_etcdv2.Play02()
+	//play250_http.Play()
+
+	play260_array.Play()
 
 	//go play015_rabbitmq_v2.PlayAsProducerBlock()
 	//time.Sleep(time.Second * 2)
