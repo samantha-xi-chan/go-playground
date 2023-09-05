@@ -14,7 +14,7 @@ func Play() {
 	http.Handle("/", fs)
 
 	// 启动服务器并监听指定端口
-	port := "8080"
+	port := "2080"
 	log.Printf("Server started on port %s...\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
