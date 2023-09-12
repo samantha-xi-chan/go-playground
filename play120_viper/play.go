@@ -8,8 +8,7 @@ import (
 // go get github.com/spf13/viper
 
 func Play() {
-	// 初始化 Viper
-	viper.SetConfigFile("configs/app.yaml")
+	viper.SetConfigFile("config/app.yaml")
 	viper.AddConfigPath(".")
 
 	// 读取配置文件

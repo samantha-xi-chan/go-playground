@@ -1,0 +1,8 @@
+{
+  "app-name": "rabbitmq",
+  "app-version": "0.0.0",
+  "amqp": {
+    "url": "amqp://guest:guest@192.168.31.7:5672",
+    "exchange": "amq.direct"
+  }
+}
