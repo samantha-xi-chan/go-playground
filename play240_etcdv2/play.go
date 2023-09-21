@@ -3,47 +3,60 @@ package play240_etcdv2
 import (
 	"fmt"
 	"github.com/coreos/go-etcd/etcd"
+	"log"
 	"time"
 )
 
-func Play() {
-	// 创建etcd客户端
-	client := etcd.NewClient([]string{"http://192.168.31.45:2379"})
-
-	// 设置键值对
-	//_, err := client.Set("/key001", "your_value", 0)
-	//if err != nil {
-	//	fmt.Println("Error setting key:", err)
-	//	return
-	//}
-
-	// 获取键值
-	response, err := client.Get("/key001", false, false)
-	if err != nil {
-		fmt.Println("Error getting key:", err)
-		return
-	}
-
-	// 打印获取到的键值信息
-	fmt.Println("Key:", response.Node.Key)
-	fmt.Println("Value:", response.Node.Value)
-
-	Play02()
-}
+const (
+	HB_TIMEOUT = 10
+	KEY        = "/key001"
+	END_POINT  = "http://192.168.31.7:2379"
+)
 
 func Play02() {
-	etcdClient := etcd.NewClient([]string{"http://192.168.31.45:2379"})
+	go func() {
+		time.Sleep(time.Second * 10)
+		PutVal(KEY, "new-value")
+		time.Sleep(time.Second * 10)
+		PutVal(KEY, "finish")
+	}()
+
+	waitValue()
+}
+
+func waitValue() {
+	etcdClient := etcd.NewClient([]string{END_POINT})
 
 	fmt.Println("Watching for changes...")
 	watch := make(chan *etcd.Response)
-	go etcdClient.Watch("/key001", 0, true, watch, nil)
+	go etcdClient.Watch(KEY, 0, true, watch, nil)
 
 	for {
 		select {
 		case resp := <-watch:
 			fmt.Printf("Event received! Key: %s, Value: %s\n", resp.Node.Key, resp.Node.Value)
-		case <-time.After(1000 * time.Second):
-			fmt.Println("No changes in 10 seconds.")
+			if resp.Node.Value == "finish" {
+				log.Println("match. going to break")
+				break
+			}
+		case <-time.After(HB_TIMEOUT * time.Second):
+			fmt.Printf("No changes in %d seconds.", HB_TIMEOUT)
 		}
+
+		log.Println("i am in for loop")
 	}
+
+	log.Println("for loop end")
+}
+
+func PutVal(key string, newValue string) {
+	// Create a new etcd client
+	client := etcd.NewClient([]string{END_POINT})
+
+	_, err := client.Set(key, newValue, 0)
+	if err != nil {
+		log.Fatalf("Failed to update key %s: %v", key, err)
+	}
+
+	fmt.Printf("Updated key %s with value %s\n", key, newValue)
 }

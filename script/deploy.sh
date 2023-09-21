@@ -1,6 +1,6 @@
 
 
-HOST=7_root
+HOST=117_root
 #HOST=8_root
 
 make build; ssh $HOST "mkdir -p /usr/http_download/static;";  scp ./main $HOST:/usr/http_download/http_download ;

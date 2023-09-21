@@ -20,25 +20,25 @@ type RabbitMQ struct {
 	quitChann  chan bool
 }
 
-func InitRabbitMQ(config AMQP) (*RabbitMQ, error) {
+func InitRabbitMQ(config AMQP, shouldAck func([]byte) bool) (*RabbitMQ, error) {
 	rmq := &RabbitMQ{
 		URL:      config.URL,
 		Exchange: config.Exchange,
 	}
 
-	err := rmq.load()
+	err := rmq.load(shouldAck)
 	if err != nil {
 		return nil, err
 	}
 
 	rmq.quitChann = make(chan bool)
 
-	go rmq.handleDisconnect()
+	go rmq.handleDisconnect(shouldAck)
 
 	return rmq, err
 }
 
-func (rmq *RabbitMQ) load() error {
+func (rmq *RabbitMQ) load(shouldAck func([]byte) bool) error {
 	var err error
 
 	rmq.Conn, err = amqp.Dial(rmq.URL)
@@ -69,7 +69,7 @@ func (rmq *RabbitMQ) load() error {
 		return errors.Wrapf(err, "declaring exchange %q", "delayed")
 	}
 
-	err = declareConsumer(rmq)
+	err = declareConsumer(rmq, shouldAck)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (rmq *RabbitMQ) load() error {
 }
 
 // declareConsumer declares all queues and bindings for the consumer
-func declareConsumer(rmq *RabbitMQ) error {
+func declareConsumer(rmq *RabbitMQ, shouldAck func([]byte) bool) error {
 	var err error
 
 	// rmq.Queue, err = rmq.Chann.QueueDeclare("user-created-queue", true, false, false, false, nil)
@@ -118,22 +118,28 @@ func declareConsumer(rmq *RabbitMQ) error {
 		return err
 	}
 
-	go consume(published)
+	go consume(published, shouldAck)
 
 	return nil
 }
 
-func consume(ds <-chan amqp.Delivery) {
+func consume(ds <-chan amqp.Delivery, shouldAck func([]byte) bool) {
 	for {
-		log.Debug("standing by:")
+		//log.Debug("standing by:")
 
 		select {
 		case d, ok := <-ds:
 			if !ok {
 				return
 			}
-			log.Infof("consume: %s", string(d.Body))
-			d.Ack(false)
+			//log.Infof("consume: %s", string(d.Body))
+
+			if shouldAck(d.Body) {
+				d.Ack(false)
+			} else {
+				d.Nack(true, false)
+			}
+
 		}
 	}
 }
@@ -148,7 +154,7 @@ func (rmq *RabbitMQ) Shutdown() {
 }
 
 // handleDisconnect handle a disconnection trying to reconnect every 5 seconds
-func (rmq *RabbitMQ) handleDisconnect() {
+func (rmq *RabbitMQ) handleDisconnect(shouldAck func([]byte) bool) {
 	for {
 		select {
 		case errChann := <-rmq.closeChann:
@@ -166,7 +172,7 @@ func (rmq *RabbitMQ) handleDisconnect() {
 
 		time.Sleep(5 * time.Second)
 
-		if err := rmq.load(); err != nil {
+		if err := rmq.load(shouldAck); err != nil {
 			log.Errorf("rabbitMQ error: %v", err)
 		}
 	}

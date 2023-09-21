@@ -8,8 +8,8 @@ type AMQP struct {
 
 // Config is the application configuration
 type Config struct {
-	AppName    string `json:"app-name" default:"rabbitmq"`
-	AppVersion string `json:"app-version" required:"true"`
+	//AppName    string `json:"app-name" default:"rabbitmq"`
+	//AppVersion string `json:"app-version" required:"true"`
 
 	AMQP AMQP
 }

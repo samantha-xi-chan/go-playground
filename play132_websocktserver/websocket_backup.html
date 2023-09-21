@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Real-Time Status and Auto-Reconnect</title>
+    <style>
+        #status-bar {
+            height: 30px;
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+        }
+        .online {
+            background-color: green;
+            color: white;
+        }
+        .half {
+            background-color: deepskyblue;
+            color: white;
+        }
+        .offline {
+            background-color: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div id="status-bar" class="offline">Offline</div>
+<div id="output"></div>
+
+<script>
+    const host = "192.168.31.117";
+    const port = 9102;
+    const topic = "notopic";
+    // const wsUrl = `ws://${host}:${port}/api/v1/socket`;
+    // const wsUrl = `ws://localhost:8080/socket`;
+    const wsUrl = `ws://192.168.32.13:8080/socket`;
+
+    const HEARTBEAT_INTERVAL = 1000;
+    const reconnectInterval = 3000;
+
+    let heartbeatInterval ;
+    let lastHeartbeatTime = Date.now();
+
+
+    let ws;
+    let statusBar = document.getElementById("status-bar");
+
+    function updateStatusBar(status) {
+        statusBar.textContent = status;
+        // statusBar.className = status.startsWith("online") ? "online" : "offline";
+        if (status.startsWith("online")) {
+            statusBar.className = "online";
+        } else if (status.startsWith("half")) {
+            statusBar.className = "half";
+        } else {
+            statusBar.className = "offline";
+        }
+    }
+
+    function connectWebSocket() {
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            updateStatusBar("online, ws.onopen ");
+            lastHeartbeatTime = Date.now()
+
+            heartbeatInterval = setInterval(() => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    console.log("heartbeatInterval considered OPEN by js api")
+                    ws.send('ping');
+
+                    if  (Date.now() -  lastHeartbeatTime > HEARTBEAT_INTERVAL*2 ){
+                        updateStatusBar("half, considered OPEN by js api , but heartbeat response timeout ");
+                    }
+                } else {
+                    console.log("heartbeatInterval not OPEN")
+                    clearInterval(heartbeatInterval);
+                    updateStatusBar("offline, not WebSocket.OPEN");
+                }
+            }, HEARTBEAT_INTERVAL);
+        };
+
+        ws.onmessage = (event) => {
+            document.getElementById("output").innerHTML = "Received message: " + event.data;
+
+            if (event.data === 'ping') {
+                lastHeartbeatTime = Date.now()
+            } else {
+
+            }
+        };
+        ws.onerror = (event) => {
+            document.getElementById("output").innerHTML = "onerror: " + event.data;
+        };
+
+        ws.onclose = (event) => {
+            if (event.wasClean) {
+                console.log(`onclose  wasClean， code：${event.code}，reason：${event.reason}`);
+                updateStatusBar("offline, Closed normally");
+            } else {
+                console.log("onclose not clean")
+                updateStatusBar("offline, attempting to reconnect...");
+                setTimeout(connectWebSocket, reconnectInterval);
+            }
+
+            // ws.close()
+
+            clearInterval(heartbeatInterval);
+        };
+    }
+
+    connectWebSocket();
+</script>
+</body>
+</html>
