@@ -15,7 +15,7 @@ type User struct {
 
 func Play() {
 	// 连接到MySQL数据库
-	dsn := "root:gzn%zkTJ8x!gGZO6@tcp(mysql:3306)/biz?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "writer:gzn%zkTJ8x!gGZO6@tcp(mysql:3306)/biz?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Panic("gorm.Open: ", err)
