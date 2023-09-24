@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-playground/play301_x509"
+	"go-playground/play041_gorm"
 	"log"
 )
 
@@ -14,9 +14,7 @@ func init() {
 }
 
 func main() {
-	//play602_http_dl.Play()
-	//play132_websocktserver.Play()
-	play301_x509.Play()
+	play041_gorm.Play()
 
 	log.Println("waiting select{}")
 	select {}
